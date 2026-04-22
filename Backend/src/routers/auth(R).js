@@ -1,17 +1,20 @@
 import express from 'express';
+import { Register,Login,Logout,updateProfile,checkAuth } from '../controllers/auth(C).js';
+import { protectedRoute } from '../middlewares/authcheck(Mw).js';
+import { limiter } from '../middlewares/ERL(Mw).js';
 
 const router = express.Router();
 
-router.get('/Register', (req, res) => {
-    res.send('Register API endpoint');
-});
+router.use(limiter);
 
-router.get('/Login', (req, res) => {
-    res.send('Login API endpoint');
-});
+router.post('/Register', Register);
 
-router.get('/Logout', (req, res) => {
-    res.send('Logout API endpoint');
-});
+router.post('/Login', Login);
+
+router.post('/Logout', Logout);
+
+router.get('/check', protectedRoute, checkAuth);
+
+router.put('/updateProfile',protectedRoute, updateProfile);
 
 export default router;
