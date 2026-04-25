@@ -14,7 +14,6 @@ import messagesRouter from './routers/messages(R).js';
 import connectDB from './lib/db.js';    
 import { app, server } from './lib/socket.js';    // Import the Socket.IO instance from the socket.js file
 
-const app = express();
 const __dirname = path.resolve();    // Get the current directory path
 app.use(express.json({limit : "5mb"}));    // Middleware to parse JSON request bodies
 app.use(cors({origin: ENV.mainURL, credentials: true}));    // Enable CORS for the specified origin and allow credentials
@@ -30,7 +29,7 @@ if(ENV.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));    // Send the index.html file for any unmatched routes
   });
 }
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();    // Connect to the database when the server starts
 });
