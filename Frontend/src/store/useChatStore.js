@@ -78,7 +78,9 @@ export const useChatStore = create((set, get) => ({
       set({ messages: messages.concat(res.data) });
     } catch (error) {
       // remove optimistic message on failure
-      set({ messages: messages });
+      set(state => ({
+        messages: state.messages.filter(msg => msg._id !== tempId)
+      }));
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
@@ -89,8 +91,10 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
 
+    socket.off("newMessage");
+
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      const isMessageSentFromSelectedUser = newMessage.senderId.toString() === selectedUser._id.toString();
       if (!isMessageSentFromSelectedUser) return;
 
       const currentMessages = get().messages;
@@ -98,7 +102,6 @@ export const useChatStore = create((set, get) => ({
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
-
         notificationSound.currentTime = 0; // reset to start
         notificationSound.play().catch((e) => console.log("Audio play failed:", e));
       }

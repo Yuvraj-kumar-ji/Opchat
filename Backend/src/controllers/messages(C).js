@@ -60,7 +60,7 @@ export const sendMessage = async (req, res) => {
         const { id: receiverId } = req.params;
         const { text, image } = req.body;
 
-        if (!text && !image) {
+        if ((!text || !text.trim()) && !image) {
             return res.status(400).json({ message: "Message text or image is required" });
         }
         if (receiverId === senderId.toString()) {   //here receiverid is string but senderid is objectid so we need to convert it to string for comparison

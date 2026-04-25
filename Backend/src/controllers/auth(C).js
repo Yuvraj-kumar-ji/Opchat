@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { generateToken } from '../lib/utils.js';
 import {sendWelcomeEmail} from "../emails/emailHandler.js";
 import {ENV} from "../lib/env.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const Register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -37,7 +38,7 @@ export const Register = async (req, res) => {
                 _id: savedUser._id,
                 username: savedUser.username,
                 email: savedUser.email,
-                profilepic: savedUser.profilepic,
+                profilePic: savedUser.profilePic,
             });
 
             try {
@@ -70,7 +71,7 @@ export const Login = async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
-            profilepic: user.profilepic,
+            profilePic: user.profilePic,
         });
     } catch (error) {
         console.error(`Error in user login: ${error.message}`);
@@ -79,7 +80,7 @@ export const Login = async (req, res) => {
 };
 
 export const Logout = (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('jwt');
     res.status(200).json({ message: 'Logged out successfully' });
 };
 
@@ -94,17 +95,17 @@ export const checkAuth = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const {profilepic} = req.body;
-        if (!profilepic) {
+        const {profilePic} = req.body;
+        if (!profilePic) {
             return res.status(400).json({ message: 'Please provide a profile picture URL' });
         }
         const userid = req.user._id;
 
-        const uploadresponse = await cloudinary.uploader.upload(profilepic);
+        const uploadresponse = await cloudinary.uploader.upload(profilePic);
 
-        const updatedUser = await User.findByIdAndUpdate(userid, { profilepic: uploadresponse.secure_url }, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(userid, { profilePic: uploadresponse.secure_url }, { new: true });
 
-        res.status(200).json(updateUser);
+        res.status(200).json(updatedUser);
     } catch (error) {
         console.error(`Error in updating profile: ${error.message}`);
         res.status(500).json({ message: 'Internal Server Error' });

@@ -21,13 +21,13 @@ io.use(socketAuthMiddleware);
 const userSocketMap = {}; // {userId:socketId}
 
 export function getReceiverSocketId(userId) {
-  return userSocketMap[userId];
+  return userSocketMap[userId.toString()];
 }
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.user.username);
 
-  const userId = socket.userId;
+  const userId = socket.userId.toString();
   userSocketMap[userId] = socket.id;
 
   // io.emit() is used to send events to all connected clients
