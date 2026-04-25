@@ -1,7 +1,7 @@
 import Messages from '../models/messages.js';
 import User from '../models/User.js';
 import { io, getReceiverSocketId } from '../lib/socket.js';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from 'cloudinary';
 
 export const getContacts = async (req, res) => {
     try {
@@ -63,7 +63,7 @@ export const sendMessage = async (req, res) => {
         if (!text && !image) {
             return res.status(400).json({ message: "Message text or image is required" });
         }
-        if (receiverId === senderId) {
+        if (receiverId === senderId.toString()) {   //here receiverid is string but senderid is objectid so we need to convert it to string for comparison
             return res.status(400).json({ message: "Cannot send message to yourself" });
         }
         const receiverExists = await User.findById(receiverId);
