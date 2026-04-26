@@ -3,7 +3,7 @@ import axios from "axios";
 export const axiosInstance = axios.create({
     baseURL: import.meta.env.MODE === "development" ? "http://localhost:5000/api" : "https://opchat.onrender.com/api",
     withCredentials: true,  // ✅ Send cookies with every request
-    timeout: 10000,  // 10 second timeout
+    timeout: 50000,  // 10 second timeout
 });
 
 // ✅ Error interceptor to handle failed requests
