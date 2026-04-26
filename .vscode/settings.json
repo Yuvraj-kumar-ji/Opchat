@@ -1,8 +1,0 @@
-{
-    "chat.tools.terminal.autoApprove": {
-        "/^cd \"c:\\\\Users\\\\Nirpesh Kumar\\\\Desktop\\\\Chat App\\\\Backend\" ; timeout 5 node src/server\\.js$/": {
-            "approve": true,
-            "matchCommandLine": true
-        }
-    }
-}
