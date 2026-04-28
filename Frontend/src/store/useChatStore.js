@@ -75,7 +75,13 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+
+      // ✅ Use state => to keep the live list safe
+      set((state) => ({
+        messages: state.messages.map((m) => m._id === tempId ? res.data : m // Swap the fake for the real one
+        ),
+      }));
+
     } catch (error) {
       // remove optimistic message on failure
       set(state => ({
