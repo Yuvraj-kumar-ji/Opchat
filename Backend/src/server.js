@@ -27,7 +27,7 @@ app.use('/api/messages', messagesRouter);    // Use the messages router for mess
 //make ready for production
 if(ENV.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../Frontend/dist')));    // Serve static files from the React build directory
-  app.get('*', (_, res) => {
+  app.get('(.*)', (_, res) => {
     res.sendFile(path.join(__dirname, '../Frontend/dist/index.html'));    // Send the index.html file for any unmatched routes
   });
 }
