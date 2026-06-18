@@ -1,0 +1,95 @@
+import { create } from 'zustand';
+import { axiosInstance } from '../lib/axios.js';
+import toast from 'react-hot-toast';
+import { io } from 'socket.io-client';
+
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "https://opchat.onrender.com";
+
+export const useAuthStore = create((set, get) => ({
+    authUser: null,
+    isCheckingAuth: true,
+    isSigningUp: false,
+    isLoggingIn: false,
+    socket: null,
+    onlineUsers: [],
+
+    checkAuth: async () => {
+        try {
+            const res = await axiosInstance.get('/auth/check');
+            set({ authUser: res.data });
+            get().connectSocket();
+        } catch (error) {
+            console.log('Error in authCheck', error);
+            set({ authUser: null });
+        } finally {
+            set({ isCheckingAuth: false });
+        }
+    },
+
+    signUp: async (data) => {
+        set({ isSigningUp: true });
+        try {
+            const res = await axiosInstance.post('/auth/Register', data);
+            set({ authUser: res.data });
+            toast.success('Registration successful!');
+            get().connectSocket();
+        } catch (error) {
+            console.log('Error in signUp', error);
+            toast.error('Registration failed!');
+        } finally {
+            set({ isSigningUp: false });
+        }
+    },
+
+    login: async (data) => {
+        set({ isLoggingIn: true });
+        try {
+            const res = await axiosInstance.post('/auth/Login', data);
+            set({ authUser: res.data });
+            toast.success('Login successful!');
+            get().connectSocket();
+        } catch (error) {
+            console.log('Error in login', error);
+            toast.error('Login failed!');
+        } finally {
+            set({ isLoggingIn: false });
+        }
+    },
+
+    logout: async () => {
+        try {
+            await axiosInstance.post('/auth/Logout');
+            set({ authUser: null });
+            toast.success('Logged out successfully!');
+            get().disconnectSocket();
+        } catch (error) {
+            console.log('Error in logout', error);
+            toast.error('Logout failed!');
+        }
+    },
+
+    connectSocket: () => {
+        const { authUser } = get();
+        if (!authUser || get().socket?.connected) return;
+
+        const socket = io(BASE_URL, {
+            withCredentials: true,
+        });
+
+        socket.connect();
+
+        set({ socket });
+
+        //listen for online users
+        socket.on('getOnlineUsers', (userIds) => {
+            console.log('Online users updated:', userIds);
+            set({ onlineUsers: userIds });
+        })
+    },
+
+    disconnectSocket: () => {
+        if (get().socket?.connected) get().socket.disconnect();
+    },
+}));
+
+
